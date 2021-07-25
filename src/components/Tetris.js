@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { createStage } from '../gameHelpers';
+import { createStage, checkCollision } from '../gameHelpers';
 
 // Styled Components
 import { StyledTetrisWrapper, StyledTetris } from './styles/StyledTetris';
@@ -19,40 +19,43 @@ const Tetris = () => {
     const [gameOver, setGameOver] = useState(false);
 
     const [player, updatePlayerPos, resetPlayer] = usePlayer();
-    const [stage, setStage] = useStage(player);
+    const [stage, setStage] = useStage(player, resetPlayer);
 
 
     console.log('re-render');
 
     const movePlayer = dir => {
-        updatePlayerPos({ x: dir, y: 0 })
-    }
+        if (!checkCollision(player, stage, { x: dir, y: 0 })) {
+            updatePlayerPos({ x: dir, y: 0 });
+        };
+    };
 
     const startGame = () => {
         // Reset everything
         setStage(createStage());
         resetPlayer();
-    }
+    };
 
     const drop = () => {
-        updatePlayerPos({ x: 0, y: .5, collided: false })
-    }
+        updatePlayerPos({ x: 0, y: 1, collided: false })
+    };
 
     const dropPlayer = () => {
         drop();
-    }
+    };
 
+    // ERROR: NEED TO FIGURE OUT WHY L/R IS MOVING 2 SPACES INSTEAD OF 1
     const move = ({ keyCode }) => {
         if (!gameOver) {
-            if(keyCode === 37) {
-                movePlayer(-.5);
+            if (keyCode === 37) {
+                movePlayer(-1);
             } else if (keyCode === 39) {
-                movePlayer(.5);
+                movePlayer(1);
             } else if (keyCode === 40) {
                 dropPlayer();
             }
         }
-    }
+    };
 
     return (
         <StyledTetrisWrapper role="button" tabIndex="0" onKeyDown={e => move(e)}>
